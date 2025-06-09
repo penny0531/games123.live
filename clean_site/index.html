@@ -1,0 +1,581 @@
+<!DOCTYPE html>
+
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Mini Games Hub</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&amp;display=swap" rel="stylesheet"/>
+<script src="https://cdn.tailwindcss.com"></script>
+<style>
+        body {
+            font-family: 'Inter', sans-serif;
+            /* Update background to a light blue/grey from the image */
+            background-color: #EBF0F6; /* Sampled from the provided image */
+            /* Text color updated to a darker blue from the image */
+            color: #335599; /* Sampled from the provided image */
+            background-size: cover;
+            background-repeat: no-repeat;
+            background-attachment: fixed;
+        }
+        /* Overlay for header and footer to ensure text readability over background */
+        /* Changed from dark grey to a light blue, sampling from the overall theme */
+        .overlay-bg {
+            background-color: #D4E4F7; /* A lighter blue for the header/footer */
+        }
+        /* Container for content, slightly transparent white for readability against the light background */
+        .content-bg {
+            background-color: rgba(255, 255, 255, 0.9);
+        }
+        /* Adjust specific text colors within the header/footer since the background is now light blue */
+        .header h1, .header p, .footer p {
+            color: #335599; /* Changed to the dark blue for contrast against light blue overlay */
+        }
+        /* Adjust text color for game card elements to ensure readability */
+        .game-card h3 {
+            color: #335599; /* Use the new blue for game titles */
+        }
+        .game-card p {
+            color: #666; /* Keep description text a bit subdued for good hierarchy */
+        }
+        .game-card a {
+            background-color: #335599; /* Make play button match the new blue text color */
+        }
+        .game-card a:hover {
+            background-color: #2a447a; /* Darker shade for hover effect */
+        }
+        /* Ensure all buttons have consistent height */
+        .game-card button {
+            min-height: 44px !important;
+            height: 44px !important;
+            display: flex !important;
+            align-items: center !important;
+            justify-content: center !important;
+            box-sizing: border-box !important;
+        }
+        /* Make game cards use flexbox to align buttons at bottom */
+        .bg-white.rounded-xl {
+            display: flex !important;
+            flex-direction: column !important;
+            height: 100% !important;
+        }
+        .bg-white.rounded-xl .p-4 {
+            display: flex !important;
+            flex-direction: column !important;
+            flex-grow: 1 !important;
+        }
+        .bg-white.rounded-xl .p-4 button {
+            margin-top: auto !important;
+        }
+        /* Category heading styles */
+        .category-heading {
+            color: #335599;
+            font-size: 2.25rem; /* text-4xl */
+            font-weight: 700; /* font-bold */
+            margin-bottom: 2rem; /* mb-8 */
+            text-align: center;
+            border-bottom: 2px solid #335599;
+            padding-bottom: 0.5rem;
+        }
+        /* Sidebar specific styles */
+        .sidebar {
+            width: 250px; /* Fixed width for sidebar */
+            min-width: 200px;
+            background-color: rgba(255, 255, 255, 0.95); /* Slightly less transparent for prominence */
+            padding: 1.5rem;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            margin-right: 1.5rem;
+            flex-shrink: 0; /* Prevent sidebar from shrinking */
+        }
+        .sidebar-nav a {
+            display: block;
+            padding: 0.75rem 1rem;
+            color: #335599;
+            font-weight: 600;
+            border-radius: 0.5rem;
+            transition: background-color 0.2s, color 0.2s;
+        }
+        .sidebar-nav a:hover {
+            background-color: #335599;
+            color: #EBF0F6;
+        }
+
+        /* Responsive adjustments */
+        @media (max-width: 768px) {
+            .main-content-area {
+                flex-direction: column; /* Stack sidebar and main content on smaller screens */
+            }
+            .sidebar {
+                width: 100%; /* Full width for sidebar on small screens */
+                margin-right: 0;
+                margin-bottom: 1.5rem; /* Space between sidebar and content */
+            }
+        }
+    
+            /* 确保按钮/链接高度一致 */
+            .game-card button, .game-card a.block {
+                min-height: 44px !important;
+                height: 44px !important;
+                display: flex !important;
+                align-items: center !important;
+                justify-content: center !important;
+                box-sizing: border-box !important;
+                width: 100%;
+            }
+            
+            /* 游戏卡使用flexbox以便在底部对齐按钮 */
+            .bg-white.rounded-xl {
+                display: flex !important;
+                flex-direction: column !important;
+                height: 100% !important;
+            }
+            
+            .bg-white.rounded-xl .p-4 {
+                display: flex !important;
+                flex-direction: column !important;
+                flex-grow: 1 !important;
+            }
+            
+            .bg-white.rounded-xl .p-4 button,
+            .bg-white.rounded-xl .p-4 a.block {
+                margin-top: auto !important;
+            }
+            
+        /* 修复游戏尺寸问题的样式 */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            background: rgba(0,0,0,0.8);
+            align-items: center;
+            justify-content: center;
+            z-index: 9999;
+            padding: 0;
+        }
+        
+        /* 移动设备适配 */
+        @media (max-width: 768px) {
+            .game-modal-content {
+                width: 100% !important;
+                height: 100% !important;
+                max-width: none !important;
+                max-height: none !important;
+                border-radius: 0 !important;
+            }
+            
+            .game-header {
+                padding: 5px 10px !important;
+            }
+        }
+        
+        /* 确保iframe内容铺满 */
+        iframe {
+            display: block;
+            border: none;
+            width: 100%;
+            height: 100%;
+            background: white;
+        }
+        </style>
+<style>
+.modal { 
+    display: none; 
+    position: fixed; 
+    top: 0; 
+    left: 0; 
+    width: 100vw; 
+    height: 100vh; 
+    background: rgba(0,0,0,0.7); 
+    align-items: center; 
+    justify-content: center; 
+    z-index: 9999;
+}
+.modal-content { 
+    background: #fff; 
+    padding: 20px; 
+    border-radius: 8px; 
+    position: relative; 
+    min-width: 820px; 
+    max-width: 90vw;
+}
+.close { 
+    position: absolute; 
+    top: 10px; 
+    right: 20px; 
+    cursor: pointer; 
+    font-size: 24px; 
+    color: #666; 
+    font-weight: bold;
+}
+.close:hover { 
+    color: #000; 
+}
+@media (max-width: 900px) {
+    .modal-content { 
+        min-width: 90vw; 
+    }
+    #gameFrame { 
+        width: 90vw !important; 
+        height: 60vw !important;
+    }
+}
+</style><script>
+            function openGame(src) {
+                console.log("Opening game: " + src);
+                var iframe = document.getElementById('gameFrame');
+                iframe.src = src;
+                document.getElementById('gameTitle').innerText = "Loading Game...";
+                document.getElementById('gameModal').style.display = 'flex';
+                
+                // 在iframe加载完成后调整其尺寸
+                iframe.onload = function() {
+                    try {
+                        // 尝试将iframe内容调整为全屏
+                        var iframeDoc = iframe.contentDocument || iframe.contentWindow.document;
+                        var iframeBody = iframeDoc.body;
+                        if (iframeBody) {
+                            iframeBody.style.margin = '0';
+                            iframeBody.style.padding = '0';
+                            iframeBody.style.height = '100%';
+                            iframeBody.style.width = '100%';
+                        }
+                    } catch(e) {
+                        console.log("Cannot access iframe content due to same-origin policy");
+                    }
+                    
+                    // 更新标题
+                    var gameTitle = "";
+                    if (src.includes("2048")) gameTitle = "2048";
+                    else if (src.includes("sudoku")) gameTitle = "Sudoku";
+                    else if (src.includes("minesweeper")) gameTitle = "Minesweeper";
+                    else if (src.includes("pacman")) gameTitle = "Pac-Man";
+                    else if (src.includes("tetris")) gameTitle = "Tetris";
+                    else if (src.includes("invaders")) gameTitle = "Space Invaders";
+                    else if (src.includes("solitaire")) gameTitle = "Solitaire";
+                    else if (src.includes("cookie")) gameTitle = "Cookie Clicker";
+                    else if (src.includes("breakout")) gameTitle = "Breakout";
+                    document.getElementById('gameTitle').innerText = gameTitle;
+                };
+            }
+            
+            function closeGame() {
+                document.getElementById('gameFrame').src = '';
+                document.getElementById('gameModal').style.display = 'none';
+            }
+            </script><style>
+            .local-game-frame {
+                width: 100%;
+                height: 100%;
+                border: none;
+            }
+            .game-modal-content {
+                width: 90%;
+                max-width: 800px;
+                height: 90%;
+                max-height: 600px;
+                padding: 0;
+                overflow: hidden;
+                display: flex;
+                flex-direction: column;
+            }
+            .game-header {
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+                padding: 10px 20px;
+                background-color: #335599;
+                color: white;
+            }
+            .game-container {
+                flex: 1;
+                overflow: hidden;
+                background: white;
+            }
+            </style></head>
+<body class="min-h-screen flex flex-col"><div class="modal" id="gameModal" onclick="closeGame()"><div class="modal-content game-modal-content" onclick="event.stopPropagation()" style="
+        width: 95%;
+        max-width: 1200px;
+        height: 90vh;
+        max-height: 800px;
+        padding: 0;
+        overflow: hidden;
+        display: flex;
+        flex-direction: column;
+        background-color: white;
+        border-radius: 8px;
+        "><div class="game-header"><span id="gameTitle">Game</span><span class="close" onclick="closeGame()">×</span></div><div class="game-container" style="
+        flex: 1;
+        width: 100%;
+        height: 100%;
+        overflow: hidden;
+        background: white;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        "><iframe allowfullscreen="True" class="local-game-frame" frameborder="0" height="600" id="gameFrame" style="width: 100%; height: 100%; border: none; margin: 0; padding: 0;" width="800"></iframe></div></div></div>
+<!-- Header Section -->
+<header class="overlay-bg py-4 shadow-md">
+<div class="container mx-auto px-4 text-center">
+<h1 class="text-4xl font-bold mb-2">Mini Games Hub</h1>
+<p class="text-lg">Your one-stop destination for fun mini-games!</p>
+</div>
+</header>
+<!-- Main Content Area - Contains Sidebar and Game Grid -->
+<main class="flex-grow container mx-auto p-4 md:p-6 lg:p-8 flex flex-col md:flex-row main-content-area">
+<!-- Sidebar Navigation -->
+<nav class="sidebar">
+<h2 class="text-2xl font-bold mb-6 text-center">Game Categories</h2>
+<ul class="sidebar-nav space-y-2">
+<li><a href="#puzzle-teasers">Puzzle &amp; Brain Teasers</a></li>
+<li><a href="#arcade-action">Arcade &amp; Action</a></li>
+<li><a href="#io-battle">IO Battle</a></li>
+<li><a href="#sports-racing">Sports &amp; Racing</a></li>
+<li><a href="#strategy-tower-defense">Strategy &amp; Tower Defense</a></li>
+<li><a href="#casual-simulation">Casual &amp; Simulation</a></li>
+<li><a href="#classic-remakes">Classic Remakes</a></li>
+</ul>
+</nav>
+<!-- Game Categories and Grid -->
+<section class="flex-grow content-bg rounded-lg shadow-xl p-6 md:p-8">
+<!-- Puzzle & Brain Teasers Category -->
+<h2 class="category-heading" id="puzzle-teasers">Puzzle &amp; Brain Teasers</h2>
+<div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6 mb-12">
+<div class="bg-white rounded-xl shadow-md overflow-hidden transform transition-transform duration-200 hover:scale-105 hover:shadow-lg">
+<img alt="2048 Thumbnail" class="w-full h-40 object-cover rounded-t-xl" src="images/2048.jpg"/>
+<div class="p-4">
+<h3 class="text-xl font-semibold mb-2">2048</h3>
+<p class="text-gray-600 text-sm mb-4">Merge numbers to reach the 2048 tile in this addictive puzzle game!</p>
+<button class="block w-full text-white py-2 px-4 rounded-md text-center font-medium transition-colors duration-200" onclick="openGame('https://2048game.com/'); document.getElementById('gameTitle').innerText = '2048';" style="background-color: #335599 !important; color: #fff !important; cursor: pointer; min-height: 44px; height: 44px;">Play Now</button>
+</div>
+</div>
+<div class="bg-white rounded-xl shadow-md overflow-hidden transform transition-transform duration-200 hover:scale-105 hover:shadow-lg">
+<img alt="Bejeweled Thumbnail" class="w-full h-40 object-cover rounded-t-xl" src="images/bejeweled.jpg"/>
+<div class="p-4">
+<h3 class="text-xl font-semibold mb-2">Bejeweled</h3>
+<p class="text-gray-600 text-sm mb-4">Swap and match sparkling gems for dazzling combos!</p>
+<a class="block w-full text-white py-2 px-4 rounded-md text-center font-medium transition-colors duration-200" href="https://www.ea.com/games/bejeweled" rel="noopener noreferrer" style="background-color: #335599 !important; color: #fff !important; cursor: pointer; min-height: 44px; height: 44px; display: flex; align-items: center; justify-content: center; text-decoration: none;" target="_blank">Play Now</a>
+</div>
+</div>
+<div class="bg-white rounded-xl shadow-md overflow-hidden transform transition-transform duration-200 hover:scale-105 hover:shadow-lg">
+<img alt="Sudoku Thumbnail" class="w-full h-40 object-cover rounded-t-xl" src="images/sudoku.jpg"/>
+<div class="p-4">
+<h3 class="text-xl font-semibold mb-2">Sudoku</h3>
+<p class="text-gray-600 text-sm mb-4">Challenge your logic with classic number-placing puzzles!</p>
+<button class="block w-full text-white py-2 px-4 rounded-md text-center font-medium transition-colors duration-200" onclick="openGame('https://www.websudoku.com/?full=1&amp;level=1'); document.getElementById('gameTitle').innerText = 'Sudoku';" style="background-color: #335599 !important; color: #fff !important; cursor: pointer; min-height: 44px; height: 44px;">Play Now</button>
+</div>
+</div>
+<div class="bg-white rounded-xl shadow-md overflow-hidden transform transition-transform duration-200 hover:scale-105 hover:shadow-lg">
+<img alt="Minesweeper Thumbnail" class="w-full h-40 object-cover rounded-t-xl" src="images/minesweeper.jpg"/>
+<div class="p-4">
+<h3 class="text-xl font-semibold mb-2">Minesweeper</h3>
+<p class="text-gray-600 text-sm mb-4">Clear the minefield without detonating any hidden bombs!</p>
+<button class="block w-full text-white py-2 px-4 rounded-md text-center font-medium transition-colors duration-200" onclick="openGame('https://minesweeperonline.com/#fullscreen'); document.getElementById('gameTitle').innerText = 'Minesweeper';" style="background-color: #335599 !important; color: #fff !important; cursor: pointer; min-height: 44px; height: 44px;">Play Now</button>
+</div>
+</div>
+</div>
+<!-- Arcade & Action Category -->
+<h2 class="category-heading" id="arcade-action">Arcade &amp; Action</h2>
+<div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6 mb-12">
+<div class="bg-white rounded-xl shadow-md overflow-hidden transform transition-transform duration-200 hover:scale-105 hover:shadow-lg">
+<img alt="Pac-Man Thumbnail" class="w-full h-40 object-cover rounded-t-xl" src="images/pac_man.jpg"/>
+<div class="p-4">
+<h3 class="text-xl font-semibold mb-2">Pac-Man</h3>
+<p class="text-gray-600 text-sm mb-4">Gobble dots and avoid ghosts in this arcade classic!</p>
+<button class="block w-full text-white py-2 px-4 rounded-md text-center font-medium transition-colors duration-200" onclick="openGame('https://elgoog.im/pacman/'); document.getElementById('gameTitle').innerText = 'Pac-Man';" style="background-color: #335599 !important; color: #fff !important; cursor: pointer; min-height: 44px; height: 44px;">Play Now</button>
+</div>
+</div>
+<div class="bg-white rounded-xl shadow-md overflow-hidden transform transition-transform duration-200 hover:scale-105 hover:shadow-lg">
+<img alt="Tetris Thumbnail" class="w-full h-40 object-cover rounded-t-xl" src="images/tetris.jpg"/>
+<div class="p-4">
+<h3 class="text-xl font-semibold mb-2">Tetris</h3>
+<p class="text-gray-600 text-sm mb-4">Arrange falling blocks to clear lines and score big!</p>
+<button class="block w-full text-white py-2 px-4 rounded-md text-center font-medium transition-colors duration-200" onclick="openGame('https://tetris.com/play-tetris'); document.getElementById('gameTitle').innerText = 'Tetris';" style="background-color: #335599 !important; color: #fff !important; cursor: pointer; min-height: 44px; height: 44px;">Play Now</button>
+</div>
+</div>
+<div class="bg-white rounded-xl shadow-md overflow-hidden transform transition-transform duration-200 hover:scale-105 hover:shadow-lg">
+<img alt="Snake Thumbnail" class="w-full h-40 object-cover rounded-t-xl" src="images/snake.jpg"/>
+<div class="p-4">
+<h3 class="text-xl font-semibold mb-2">Snake</h3>
+<p class="text-gray-600 text-sm mb-4">Grow your snake by eating food, but don't hit the walls or yourself!</p>
+<a class="block w-full text-white py-2 px-4 rounded-md text-center font-medium transition-colors duration-200" href="https://playsnake.org/" rel="noopener noreferrer" style="background-color: #335599 !important; color: #fff !important; cursor: pointer; min-height: 44px; height: 44px; display: flex; align-items: center; justify-content: center; text-decoration: none;" target="_blank">Play Now</a>
+</div>
+</div>
+<div class="bg-white rounded-xl shadow-md overflow-hidden transform transition-transform duration-200 hover:scale-105 hover:shadow-lg">
+<img alt="Space Invaders Thumbnail" class="w-full h-40 object-cover rounded-t-xl" src="images/space_invaders.jpg"/>
+<div class="p-4">
+<h3 class="text-xl font-semibold mb-2">Space Invaders</h3>
+<p class="text-gray-600 text-sm mb-4">Defend Earth from descending alien invaders in this classic shooter!</p>
+<button class="block w-full text-white py-2 px-4 rounded-md text-center font-medium transition-colors duration-200" onclick="openGame('https://elgoog.im/space-invaders/'); document.getElementById('gameTitle').innerText = 'Space Invaders';" style="background-color: #335599 !important; color: #fff !important; cursor: pointer; min-height: 44px; height: 44px;">Play Now</button>
+</div>
+</div>
+</div>
+<!-- IO Battle Category -->
+<h2 class="category-heading" id="io-battle">IO Battle</h2>
+<div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6 mb-12">
+<div class="bg-white rounded-xl shadow-md overflow-hidden transform transition-transform duration-200 hover:scale-105 hover:shadow-lg">
+<img alt="Agar.io Thumbnail" class="w-full h-40 object-cover rounded-t-xl" src="images/agar_io.jpg"/>
+<div class="p-4">
+<h3 class="text-xl font-semibold mb-2">Agar.io</h3>
+<p class="text-gray-600 text-sm mb-4">Grow your cell by eating others and dominating the arena!</p>
+<a class="block w-full text-white py-2 px-4 rounded-md text-center font-medium transition-colors duration-200" href="https://agar.io/" rel="noopener noreferrer" style="background-color: #335599 !important; color: #fff !important; cursor: pointer; min-height: 44px; height: 44px; display: flex; align-items: center; justify-content: center; text-decoration: none;" target="_blank">Play Now</a>
+</div>
+</div>
+<div class="bg-white rounded-xl shadow-md overflow-hidden transform transition-transform duration-200 hover:scale-105 hover:shadow-lg">
+<img alt="Slither.io Thumbnail" class="w-full h-40 object-cover rounded-t-xl" src="images/slither_io.jpg"/>
+<div class="p-4">
+<h3 class="text-xl font-semibold mb-2">Slither.io</h3>
+<p class="text-gray-600 text-sm mb-4">Become the longest snake by eating glowing orbs and trapping opponents!</p>
+<a class="block w-full text-white py-2 px-4 rounded-md text-center font-medium transition-colors duration-200" href="https://slither.io/" rel="noopener noreferrer" style="background-color: #335599 !important; color: #fff !important; cursor: pointer; min-height: 44px; height: 44px; display: flex; align-items: center; justify-content: center; text-decoration: none;" target="_blank">Play Now</a>
+</div>
+</div>
+<div class="bg-white rounded-xl shadow-md overflow-hidden transform transition-transform duration-200 hover:scale-105 hover:shadow-lg">
+<img alt="Krunker.io Thumbnail" class="w-full h-40 object-cover rounded-t-xl" src="images/krunker_io.jpg"/>
+<div class="p-4">
+<h3 class="text-xl font-semibold mb-2">Krunker.io</h3>
+<p class="text-gray-600 text-sm mb-4">Fast-paced, pixelated FPS action in your browser!</p>
+<a class="block w-full text-white py-2 px-4 rounded-md text-center font-medium transition-colors duration-200" href="https://krunker.io/" rel="noopener noreferrer" style="background-color: #335599 !important; color: #fff !important; cursor: pointer; min-height: 44px; height: 44px; display: flex; align-items: center; justify-content: center; text-decoration: none;" target="_blank">Play Now</a>
+</div>
+</div>
+<div class="bg-white rounded-xl shadow-md overflow-hidden transform transition-transform duration-200 hover:scale-105 hover:shadow-lg">
+<img alt="Shell Shockers Thumbnail" class="w-full h-40 object-cover rounded-t-xl" src="images/shell_shockers.jpg"/>
+<div class="p-4">
+<h3 class="text-xl font-semibold mb-2">Shell Shockers</h3>
+<p class="text-gray-600 text-sm mb-4">An egg-cellent multiplayer FPS where you're an egg!</p>
+<a class="block w-full text-white py-2 px-4 rounded-md text-center font-medium transition-colors duration-200" href="https://shellshock.io/" rel="noopener noreferrer" style="background-color: #335599 !important; color: #fff !important; cursor: pointer; min-height: 44px; height: 44px; display: flex; align-items: center; justify-content: center; text-decoration: none;" target="_blank">Play Now</a>
+</div>
+</div>
+</div>
+<!-- Sports & Racing Category -->
+<h2 class="category-heading" id="sports-racing">Sports &amp; Racing</h2>
+<div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6 mb-12">
+<div class="bg-white rounded-xl shadow-md overflow-hidden transform transition-transform duration-200 hover:scale-105 hover:shadow-lg">
+<img alt="8 Ball Pool Thumbnail" class="w-full h-40 object-cover rounded-t-xl" src="images/8_ball_pool.jpg"/>
+<div class="p-4">
+<h3 class="text-xl font-semibold mb-2">8 Ball Pool</h3>
+<p class="text-gray-600 text-sm mb-4">Challenge players worldwide in this classic pool game!</p>
+<a class="block w-full text-white py-2 px-4 rounded-md text-center font-medium transition-colors duration-200" href="https://www.miniclip.com/games/8-ball-pool/en/" rel="noopener noreferrer" style="background-color: #335599 !important; color: #fff !important; cursor: pointer; min-height: 44px; height: 44px; display: flex; align-items: center; justify-content: center; text-decoration: none;" target="_blank">Play Now</a>
+</div>
+</div>
+<div class="bg-white rounded-xl shadow-md overflow-hidden transform transition-transform duration-200 hover:scale-105 hover:shadow-lg">
+<img alt="Basketball Stars Thumbnail" class="w-full h-40 object-cover rounded-t-xl" src="images/basketball_stars.jpg"/>
+<div class="p-4">
+<h3 class="text-xl font-semibold mb-2">Basketball Stars</h3>
+<p class="text-gray-600 text-sm mb-4">Show off your hoop skills in fast-paced street basketball!</p>
+<a class="block w-full text-white py-2 px-4 rounded-md text-center font-medium transition-colors duration-200" href="https://poki.com/en/g/basketball-stars" rel="noopener noreferrer" style="background-color: #335599 !important; color: #fff !important; cursor: pointer; min-height: 44px; height: 44px; display: flex; align-items: center; justify-content: center; text-decoration: none;" target="_blank">Play Now</a>
+</div>
+</div>
+<div class="bg-white rounded-xl shadow-md overflow-hidden transform transition-transform duration-200 hover:scale-105 hover:shadow-lg">
+<img alt="Moto X3M Thumbnail" class="w-full h-40 object-cover rounded-t-xl" src="images/moto_x3m.jpg"/>
+<div class="p-4">
+<h3 class="text-xl font-semibold mb-2">Moto X3M</h3>
+<p class="text-gray-600 text-sm mb-4">Perform stunts and race your dirt bike through challenging levels!</p>
+<a class="block w-full text-white py-2 px-4 rounded-md text-center font-medium transition-colors duration-200" href="https://poki.com/en/g/moto-x3m" rel="noopener noreferrer" style="background-color: #335599 !important; color: #fff !important; cursor: pointer; min-height: 44px; height: 44px; display: flex; align-items: center; justify-content: center; text-decoration: none;" target="_blank">Play Now</a>
+</div>
+</div>
+<div class="bg-white rounded-xl shadow-md overflow-hidden transform transition-transform duration-200 hover:scale-105 hover:shadow-lg">
+<img alt="Mini Golf King Thumbnail" class="w-full h-40 object-cover rounded-t-xl" src="images/mini_golf_king.jpg"/>
+<div class="p-4">
+<h3 class="text-xl font-semibold mb-2">Mini Golf King</h3>
+<p class="text-gray-600 text-sm mb-4">Putt your way to victory on unique and challenging mini golf courses!</p>
+<a class="block w-full text-white py-2 px-4 rounded-md text-center font-medium transition-colors duration-200" href="https://www.minigolfking.net/" rel="noopener noreferrer" style="background-color: #335599 !important; color: #fff !important; cursor: pointer; min-height: 44px; height: 44px; display: flex; align-items: center; justify-content: center; text-decoration: none;" target="_blank">Play Now</a>
+</div>
+</div>
+</div>
+<!-- Strategy & Tower Defense Category -->
+<h2 class="category-heading" id="strategy-tower-defense">Strategy &amp; Tower Defense</h2>
+<div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6 mb-12">
+<div class="bg-white rounded-xl shadow-md overflow-hidden transform transition-transform duration-200 hover:scale-105 hover:shadow-lg">
+<img alt="Bloons Tower Defense 5 Thumbnail" class="w-full h-40 object-cover rounded-t-xl" src="images/bloons_tower_defense_5.jpg"/>
+<div class="p-4">
+<h3 class="text-xl font-semibold mb-2">Bloons Tower Defense 5</h3>
+<p class="text-gray-600 text-sm mb-4">Place monkeys to pop invading bloons in this classic tower defense!</p>
+<a class="block w-full text-white py-2 px-4 rounded-md text-center font-medium transition-colors duration-200" href="https://ninjakiwi.com/Games/Tower-Defense/Play/Bloons-TD-5.html" rel="noopener noreferrer" style="background-color: #335599 !important; color: #fff !important; cursor: pointer; min-height: 44px; height: 44px; display: flex; align-items: center; justify-content: center; text-decoration: none;" target="_blank">Play Now</a>
+</div>
+</div>
+<div class="bg-white rounded-xl shadow-md overflow-hidden transform transition-transform duration-200 hover:scale-105 hover:shadow-lg">
+<img alt="Plants vs. Zombies Thumbnail" class="w-full h-40 object-cover rounded-t-xl" src="images/space_invaders.jpg"/>
+<div class="p-4">
+<h3 class="text-xl font-semibold mb-2">Plants vs. Zombies</h3>
+<p class="text-gray-600 text-sm mb-4">Strategically plant your defenses to stop the zombie horde!</p>
+<a class="block w-full text-white py-2 px-4 rounded-md text-center font-medium transition-colors duration-200" href="https://www.ea.com/games/plants-vs-zombies" rel="noopener noreferrer" style="background-color: #335599 !important; color: #fff !important; cursor: pointer; min-height: 44px; height: 44px; display: flex; align-items: center; justify-content: center; text-decoration: none;" target="_blank">Play Now</a>
+</div>
+</div>
+<div class="bg-white rounded-xl shadow-md overflow-hidden transform transition-transform duration-200 hover:scale-105 hover:shadow-lg">
+<img alt="Kingdom Rush Thumbnail" class="w-full h-40 object-cover rounded-t-xl" src="images/kingdom_rush.jpg"/>
+<div class="p-4">
+<h3 class="text-xl font-semibold mb-2">Kingdom Rush</h3>
+<p class="text-gray-600 text-sm mb-4">Defend your kingdom from hordes of monsters with powerful towers!</p>
+<a class="block w-full text-white py-2 px-4 rounded-md text-center font-medium transition-colors duration-200" href="https://www.ironhidegames.com/Games/kingdom-rush" rel="noopener noreferrer" style="background-color: #335599 !important; color: #fff !important; cursor: pointer; min-height: 44px; height: 44px; display: flex; align-items: center; justify-content: center; text-decoration: none;" target="_blank">Play Now</a>
+</div>
+</div>
+</div>
+<!-- Casual & Simulation Category -->
+<h2 class="category-heading" id="casual-simulation">Casual &amp; Simulation</h2>
+<div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6 mb-12">
+<div class="bg-white rounded-xl shadow-md overflow-hidden transform transition-transform duration-200 hover:scale-105 hover:shadow-lg">
+<img alt="Solitaire Thumbnail" class="w-full h-40 object-cover rounded-t-xl" src="images/tetris.jpg"/>
+<div class="p-4">
+<h3 class="text-xl font-semibold mb-2">Solitaire</h3>
+<p class="text-gray-600 text-sm mb-4">Enjoy a classic card game, perfect for relaxing downtime!</p>
+<button class="block w-full text-white py-2 px-4 rounded-md text-center font-medium transition-colors duration-200" onclick="openGame('https://www.solitr.com/'); document.getElementById('gameTitle').innerText = 'Solitaire';" style="background-color: #335599 !important; color: #fff !important; cursor: pointer; min-height: 44px; height: 44px;">Play Now</button>
+</div>
+</div>
+<div class="bg-white rounded-xl shadow-md overflow-hidden transform transition-transform duration-200 hover:scale-105 hover:shadow-lg">
+<img alt="Restaurant Empire Thumbnail" class="w-full h-40 object-cover rounded-t-xl" src="images/basketball_stars.jpg"/>
+<div class="p-4">
+<h3 class="text-xl font-semibold mb-2">Restaurant Empire</h3>
+<p class="text-gray-600 text-sm mb-4">Build and manage your dream restaurant empire!</p>
+<a class="block w-full text-white py-2 px-4 rounded-md text-center font-medium transition-colors duration-200" href="https://www.nintendo.com/us/store/products/restaurant-empire-switch/" rel="noopener noreferrer" style="background-color: #335599 !important; color: #fff !important; cursor: pointer; min-height: 44px; height: 44px; display: flex; align-items: center; justify-content: center; text-decoration: none;" target="_blank">Play Now</a>
+</div>
+</div>
+<div class="bg-white rounded-xl shadow-md overflow-hidden transform transition-transform duration-200 hover:scale-105 hover:shadow-lg">
+<img alt="Cookie Clicker Thumbnail" class="w-full h-40 object-cover rounded-t-xl" src="images/cookie_clicker.jpg"/>
+<div class="p-4">
+<h3 class="text-xl font-semibold mb-2">Cookie Clicker</h3>
+<p class="text-gray-600 text-sm mb-4">Click your way to an absurd amount of cookies!</p>
+<button class="block w-full text-white py-2 px-4 rounded-md text-center font-medium transition-colors duration-200" onclick="openGame('https://orteil.dashnet.org/cookieclicker/'); document.getElementById('gameTitle').innerText = 'Cookie Clicker';" style="background-color: #335599 !important; color: #fff !important; cursor: pointer; min-height: 44px; height: 44px;">Play Now</button>
+</div>
+</div>
+</div>
+<!-- Classic Remakes Category -->
+<h2 class="category-heading" id="classic-remakes">Classic Remakes</h2>
+<div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6 mb-12">
+<div class="bg-white rounded-xl shadow-md overflow-hidden transform transition-transform duration-200 hover:scale-105 hover:shadow-lg">
+<img alt="Frogger Thumbnail" class="w-full h-40 object-cover rounded-t-xl" src="images/frogger.jpg"/>
+<div class="p-4">
+<h3 class="text-xl font-semibold mb-2">Frogger</h3>
+<p class="text-gray-600 text-sm mb-4">Help the frog cross busy roads and dangerous rivers!</p>
+<a class="block w-full text-white py-2 px-4 rounded-md text-center font-medium transition-colors duration-200" href="https://www.konami.com/games/frogger/en/" rel="noopener noreferrer" style="background-color: #335599 !important; color: #fff !important; cursor: pointer; min-height: 44px; height: 44px; display: flex; align-items: center; justify-content: center; text-decoration: none;" target="_blank">Play Now</a>
+</div>
+</div>
+<div class="bg-white rounded-xl shadow-md overflow-hidden transform transition-transform duration-200 hover:scale-105 hover:shadow-lg">
+<img alt="Breakout Thumbnail" class="w-full h-40 object-cover rounded-t-xl" src="images/breakout.jpg"/>
+<div class="p-4">
+<h3 class="text-xl font-semibold mb-2">Breakout</h3>
+<p class="text-gray-600 text-sm mb-4">Destroy bricks by bouncing a ball with your paddle!</p>
+<button class="block w-full text-white py-2 px-4 rounded-md text-center font-medium transition-colors duration-200" onclick="openGame('https://elgoog.im/breakout/'); document.getElementById('gameTitle').innerText = 'Breakout';" style="background-color: #335599 !important; color: #fff !important; cursor: pointer; min-height: 44px; height: 44px;">Play Now</button>
+</div>
+</div>
+<div class="bg-white rounded-xl shadow-md overflow-hidden transform transition-transform duration-200 hover:scale-105 hover:shadow-lg">
+<img alt="Street Fighter II Thumbnail" class="w-full h-40 object-cover rounded-t-xl" src="real_game_images/game_35_paper.io.jpg"/>
+<div class="p-4">
+<h3 class="text-xl font-semibold mb-2">Street Fighter II (Browser Version)</h3>
+<p class="text-gray-600 text-sm mb-4">Engage in classic arcade fighting action!</p>
+<a class="block w-full text-white py-2 px-4 rounded-md text-center font-medium transition-colors duration-200" href="https://www.streetfighter.com/" rel="noopener noreferrer" style="background-color: #335599 !important; color: #fff !important; cursor: pointer; min-height: 44px; height: 44px; display: flex; align-items: center; justify-content: center; text-decoration: none;" target="_blank">Play Now</a>
+</div>
+</div>
+</div>
+</section>
+</main>
+<!-- Footer Section -->
+<footer class="overlay-bg py-6 mt-auto">
+<div class="container mx-auto px-4 text-center">
+<p>© 2025 Mini Games Hub. All rights reserved.</p>
+</div>
+</footer>
+</body>
+</html>
